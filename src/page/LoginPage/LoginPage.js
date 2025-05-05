@@ -23,7 +23,7 @@ const Login = () => {
   }, [navigate]);
   const handleLoginWithEmail = (event) => {
     event.preventDefault();
-    dispatch(loginWithEmail({ email, password }));
+    dispatch(loginWithEmail({ email, password, navigate }));
   };
 
   const handleGoogleLogin = async (googleData) => {
