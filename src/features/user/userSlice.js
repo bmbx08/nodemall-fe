@@ -11,7 +11,7 @@ export const loginWithEmail = createAsyncThunk(
       const response = await api.post("/auth/login",{email,password});
       //성공
       //LoginPage
-      // console.log("responseeee",response);
+      console.log("responseeee",response.data);
       sessionStorage.setItem("token",response.data.token);
 
       return response.data;
@@ -29,7 +29,7 @@ export const loginWithGoogle = createAsyncThunk(
 );
 
 export const logout = () => (dispatch) => {
-  // dispatch(deleteUserData());
+  dispatch(deleteUserData());
   sessionStorage.removeItem("token")
 };
 
@@ -64,6 +64,7 @@ export const loginWithToken = createAsyncThunk(
     try{
       //api.js에서 token값을 헤더에 자동으로 붙이기 때문에 토큰을 불러올 필요X
       const response = await api.get("/user/me")
+      console.log("token responsee",response)
       return response.data;
     }catch(error){
       return rejectWithValue(error.error);
@@ -106,7 +107,7 @@ const userSlice = createSlice({
     })
     .addCase(loginWithEmail.fulfilled,(state,action)=>{
       state.loading=false;
-      state.user=action.payload;
+      state.user=action.payload.user;
       state.loginError=null;
     })
     .addCase(loginWithEmail.rejected,(state,action)=>{
@@ -114,9 +115,9 @@ const userSlice = createSlice({
     })
     //토큰으로 로그인하는 과정은 로딩 스피너 보여주기X->불필요함
     .addCase(loginWithToken.fulfilled,(state,action)=>{
-      state.user=action.payload;
+      state.user=action.payload.user;
     })
   },
 });
-export const { clearErrors } = userSlice.actions;
+export const { clearErrors,deleteUserData } = userSlice.actions;
 export default userSlice.reducer;
