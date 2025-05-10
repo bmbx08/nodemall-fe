@@ -1,40 +1,52 @@
-import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import {createSlice, createAsyncThunk} from "@reduxjs/toolkit";
 import api from "../../utils/api";
-import { showToastMessage } from "../common/uiSlice";
+import {showToastMessage} from "../common/uiSlice";
 
 // 비동기 액션 생성
 export const getProductList = createAsyncThunk(
   "products/getProductList",
-  async (query, { rejectWithValue }) => {}
+  async (query, {rejectWithValue}) => {
+    try {
+      const response = await api.get("/product", {params: {...query}});
+      if (response.status !== 200) throw new Error(response.error);
+      console.log("productList responsee", response);
+
+      return response.data.data;
+    } catch (error) {
+      rejectWithValue(error.error);
+    }
+  }
 );
 
 export const getProductDetail = createAsyncThunk(
   "products/getProductDetail",
-  async (id, { rejectWithValue }) => {}
+  async (id, {rejectWithValue}) => {}
 );
 
 export const createProduct = createAsyncThunk(
   "products/createProduct",
-  async (formData, { dispatch, rejectWithValue }) => {
-    try{
-      const response = await api.post("/product",formData);
-      if(response.status!==200) throw new Error(response.error)
-      dispatch(showToastMessage({message:"상품 생성 완료",status:"success"}))
+  async (formData, {dispatch, rejectWithValue}) => {
+    try {
+      const response = await api.post("/product", formData);
+      if (response.status !== 200) throw new Error(response.error);
+      dispatch(
+        showToastMessage({message: "상품 생성 완료", status: "success"})
+      );
       return response.data.data;
-    }catch(error){
-      return rejectWithValue(error.error)
+    } catch (error) {
+      return rejectWithValue(error.error);
     }
   }
 );
 
 export const deleteProduct = createAsyncThunk(
   "products/deleteProduct",
-  async (id, { dispatch, rejectWithValue }) => {}
+  async (id, {dispatch, rejectWithValue}) => {}
 );
 
 export const editProduct = createAsyncThunk(
   "products/editProduct",
-  async ({ id, ...formData }, { dispatch, rejectWithValue }) => {}
+  async ({id, ...formData}, {dispatch, rejectWithValue}) => {}
 );
 
 // 슬라이스 생성
@@ -61,23 +73,35 @@ const productSlice = createSlice({
     },
   },
   extraReducers: (builder) => {
-    builder.addCase(createProduct.pending,(state,action)=>{
-      state.loading = true;
-    })
-    .addCase(createProduct.fulfilled,(state,action)=>{
-      state.loading=false;
-      state.error="";
-      state.success=true; //상품 생성을 성공했다? -> Dialog 닫음, 실패?->실패 메세지를 Dialog에 보여주고 닫지 않음
-
-    })
-    .addCase(createProduct.rejected,(state,action)=>{
-      state.loading=false;
-      state.error=action.payload;
-      state.success=false;
-    })
+    builder
+      .addCase(createProduct.pending, (state, action) => {
+        state.loading = true;
+      })
+      .addCase(createProduct.fulfilled, (state, action) => {
+        state.loading = false;
+        state.error = "";
+        state.success = true; //상품 생성을 성공했다? -> Dialog 닫음, 실패?->실패 메세지를 Dialog에 보여주고 닫지 않음
+      })
+      .addCase(createProduct.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+        state.success = false;
+      })
+      .addCase(getProductList.pending, (state, action) => {
+        state.loading = true;
+      })
+      .addCase(getProductList.fulfilled, (state, action) => {
+        state.loading = false;
+        state.productList = action.payload;
+        state.error = "";
+      })
+      .addCase(getProductList.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      });
   },
 });
 
-export const { setSelectedProduct, setFilteredList, clearError } =
+export const {setSelectedProduct, setFilteredList, clearError} =
   productSlice.actions;
 export default productSlice.reducer;
