@@ -13,7 +13,6 @@ const LandingPage = () => {
   const productList = useSelector((state) => state.product.productList);
   const [query] = useSearchParams();
   const name = query.get("name");
-  const page = query.get("page")
 
   useEffect(() => {
     dispatch(
@@ -23,9 +22,9 @@ const LandingPage = () => {
     );
   }, [query]);
 
-  const handlePageClick = ({selected}) => {
+  // const handlePageClick = ({selected}) => {
 
-  }
+  // }
 
   return (
     <Container>
@@ -46,7 +45,7 @@ const LandingPage = () => {
           </div>
         )}
       </Row>
-      <ReactPaginate
+      {/* <ReactPaginate
           nextLabel="next >"
           onPageChange={handlePageClick}
           pageRangeDisplayed={5} //
@@ -66,7 +65,7 @@ const LandingPage = () => {
           containerClassName="pagination"
           activeClassName="active"
           className="display-center list-style-none mt-2"
-      />
+      /> */}
     </Container>
   );
 };
