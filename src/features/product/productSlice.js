@@ -43,7 +43,21 @@ export const createProduct = createAsyncThunk(
 
 export const deleteProduct = createAsyncThunk(
   "products/deleteProduct",
-  async (id, {dispatch, rejectWithValue}) => {}
+  async (id, {dispatch, rejectWithValue}) => {
+    try{
+      const response = await api.delete(`/product/${id}`)
+      console.log("delete response",response)
+      if(response.status!==200) throw new Error(response.error);
+      dispatch(
+        showToastMessage({message:"상품 삭제 완료",status:"success"})
+      )
+      dispatch(getProductList({page:1}))
+      return response.data.data;
+    }catch(error){
+      return rejectWithValue(error.error)
+    }
+    
+  }
 );
 
 export const editProduct = createAsyncThunk(
@@ -54,7 +68,7 @@ export const editProduct = createAsyncThunk(
       console.log("edit response",response)
       if(response.status!==200) throw new Error(response.error)
       dispatch(getProductList({page:1}))
-      return response.data.data
+      return response.data.data;
     }catch(error){
       rejectWithValue(error.error)
     }
@@ -106,7 +120,7 @@ const productSlice = createSlice({
         state.loading = false;
         state.productList = action.payload.data;
         state.error = "";
-        state.totalPageNum=action.payload.totalPageNum
+        state.totalPageNum=action.payload.totalPageNum;
       })
       .addCase(getProductList.rejected, (state, action) => {
         state.loading = false;
@@ -124,6 +138,17 @@ const productSlice = createSlice({
         state.loading=false;
         state.error=action.payload;
         state.success=false;
+      })
+      .addCase(deleteProduct.pending,(state,action)=>{
+        state.loading=true;
+      })
+      .addCase(deleteProduct.fulfilled,(state,action)=>{
+        state.loading=false;
+        state.error="";
+      })
+      .addCase(deleteProduct.rejected,(state,action)=>{
+        state.loading=false;
+        state.error=action.payload;
       })
   },
 });
