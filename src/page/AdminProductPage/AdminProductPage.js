@@ -43,19 +43,19 @@ const AdminProductPage = () => {
 
   useEffect(() => {
     //검색어나 페이지가 바뀌면 url바꿔주기 (검색어또는 페이지가 바뀜 => url 바꿔줌=> url쿼리 읽어옴=> 이 쿼리값 맞춰서  상품리스트 가져오기)
-    if(searchQuery.name===""){
+    if (searchQuery.name === "") {
       delete searchQuery.name;
     }
-    console.log("search query",searchQuery)
-    const params = new URLSearchParams(searchQuery) //URLSearchParams가 객체 형태인 searchQuery를 query형태로 바꿔줌
+    console.log("search query", searchQuery);
+    const params = new URLSearchParams(searchQuery); //URLSearchParams가 객체 형태인 searchQuery를 query형태로 바꿔줌
     const query = params.toString(); //하지만 string 형태로 변환해야지 사용가능
     console.log("queryy", query);
-    navigate("?"+query)
+    navigate("?" + query);
   }, [searchQuery]);
 
   const deleteItem = (id) => {
     //아이템 삭제하기
-    dispatch(deleteProduct(id))
+    dispatch(deleteProduct(id));
   };
 
   const openEditForm = (product) => {
@@ -75,8 +75,8 @@ const AdminProductPage = () => {
 
   const handlePageClick = ({selected}) => {
     //  쿼리에 페이지값 바꿔주기
-    console.log("selected data",selected)
-    setSearchQuery({...searchQuery,page:selected+1})
+    console.log("selected data", selected);
+    setSearchQuery({...searchQuery, page: selected + 1});
   };
 
   //searchbox에서 검색어를 읽어온다 =>  엔터를 치면 => searchQuery객체가 업데이트가 됨 {name: 스트레이트 팬츠}
