@@ -16,9 +16,9 @@ export const addToCart = createAsyncThunk(
   "cart/addToCart",
   async ({id, size}, {rejectWithValue, dispatch}) => {
     try {
-      console.log("response startt")
+      console.log("response startt");
       const response = await api.post("/cart", {productId: id, size, qty: 1});
-      console.log("cart response",response);
+      console.log("cart response", response);
       if (response.status !== 200) throw new Error(response.error);
       dispatch(
         showToastMessage({
@@ -41,12 +41,31 @@ export const addToCart = createAsyncThunk(
 
 export const getCartList = createAsyncThunk(
   "cart/getCartList",
-  async (_, {rejectWithValue, dispatch}) => {}
+  async (_, {rejectWithValue, dispatch}) => {
+    try {
+      const response = await api.get("/cart");
+      if (response.status !== 200) throw new Error(response.error);
+      console.log("cart list responsee", response);
+
+      return response.data.data;
+    } catch (error) {
+      return rejectWithValue(error.error);
+    }
+  }
 );
 
 export const deleteCartItem = createAsyncThunk(
   "cart/deleteCartItem",
-  async (id, {rejectWithValue, dispatch}) => {}
+  async (id, {rejectWithValue, dispatch}) => {
+    try{
+      const response = await api.delete(`/cart/${id}`)
+      console.log("delete responsee",response);
+      if(response.status!==200) throw new Error(response.error);
+
+    }catch(error){
+      return rejectWithValue(error.error)
+    }
+  }
 );
 
 export const updateQty = createAsyncThunk(
@@ -71,17 +90,34 @@ const cartSlice = createSlice({
   extraReducers: (builder) => {
     builder
       .addCase(addToCart.pending, (state, action) => {
-        state.loading=true;
+        state.loading = true;
       })
       .addCase(addToCart.fulfilled, (state, action) => {
-        state.loading=false;
-        state.error=""
-        state.cartItemCount=action.payload;
+        state.loading = false;
+        state.error = "";
+        state.cartItemCount = action.payload;
       })
       .addCase(addToCart.rejected, (state, action) => {
-        state.loading=false;
-        state.error=action.payload;
+        state.loading = false;
+        state.error = action.payload;
       })
+      .addCase(getCartList.pending, (state, action) => {
+        state.loading = true;
+      })
+      .addCase(getCartList.fulfilled, (state, action) => {
+        state.loading = false;
+        state.error = "";
+        state.cartList = action.payload;
+        state.totalPrice = action.payload.reduce(
+          //order page, cart page 등등에서 totalPrice 값이 필요하기 때문에 여기에서 계산한다.
+          (total, item) => total + item.productId.price * item.qty,
+          0
+        );
+      })
+      .addCase(getCartList.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      });
   },
 });
 

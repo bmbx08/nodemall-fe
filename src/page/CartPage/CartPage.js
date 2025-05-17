@@ -12,8 +12,17 @@ const CartPage = () => {
   const { cartList, totalPrice } = useSelector((state) => state.cart);
 
   useEffect(() => {
+    dispatch(getCartList());
     //카트리스트 불러오기
   }, []);
+
+  useEffect(()=>{
+    console.log("cartlisttt",cartList)
+  },[cartList])
+
+  useEffect(()=>{
+    console.log("total price",totalPrice)
+  },[totalPrice])
 
   return (
     <Container>
@@ -31,7 +40,7 @@ const CartPage = () => {
           )}
         </Col>
         <Col xs={12} md={5}>
-          <OrderReceipt />
+          <OrderReceipt cartList={cartList} totalPrice={totalPrice}/>
         </Col>
       </Row>
     </Container>
