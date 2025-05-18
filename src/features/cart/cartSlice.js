@@ -61,8 +61,15 @@ export const deleteCartItem = createAsyncThunk(
       const response = await api.delete(`/cart/${id}`)
       console.log("delete responsee",response);
       if(response.status!==200) throw new Error(response.error);
-
+      dispatch(getCartList())
+      return response.data.cartItemCount;
     }catch(error){
+      dispatch(
+        showToastMessage({
+          message: "카트 아이템 삭제 실패",
+          status: "error",
+        })
+      );
       return rejectWithValue(error.error)
     }
   }
@@ -70,12 +77,36 @@ export const deleteCartItem = createAsyncThunk(
 
 export const updateQty = createAsyncThunk(
   "cart/updateQty",
-  async ({id, value}, {rejectWithValue}) => {}
+  async ({id, value}, {rejectWithValue, dispatch}) => {
+    try{
+      const response = await api.put(`/cart/${id}`,{qty:value});
+      console.log("update responsee",response);
+      if(response.status!==200) throw new Error(response.error);
+      return response.data.data;
+    }catch(error){
+      dispatch(
+        showToastMessage({
+          message: "카트 아이템 수정 실패",
+          status: "error",
+        })
+      );
+      rejectWithValue(error.error);
+    }
+  }
 );
 
 export const getCartQty = createAsyncThunk(
   "cart/getCartQty",
-  async (_, {rejectWithValue, dispatch}) => {}
+  async (_, {rejectWithValue, dispatch}) => {
+    try{
+      const response = await api.get('/cart/qty');
+      console.log("getqty responsee",response);
+      if(response.status!==200)throw new Error(response.error);
+      return response.data.cartItemCount
+    }catch(error){
+      rejectWithValue(error.error);
+    }
+  }
 );
 
 const cartSlice = createSlice({
@@ -117,7 +148,48 @@ const cartSlice = createSlice({
       .addCase(getCartList.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
-      });
+      })
+      .addCase(deleteCartItem.pending,(state,action)=>{
+        state.loading=true;
+      })
+      .addCase(deleteCartItem.fulfilled,(state,action)=>{
+        state.loading=false;
+        state.error="";
+        state.cartItemCount=action.payload
+      })
+      .addCase(deleteCartItem.rejected,(state,action)=>{
+        state.loading=false;
+        state.error=action.payload
+      })
+      .addCase(updateQty.pending,(state,action)=>{
+        state.loading=true;
+      })
+      .addCase(updateQty.fulfilled,(state,action)=>{
+        state.loading=false;
+        state.error="";
+        state.cartList = action.payload;
+        state.totalPrice = action.payload.reduce(
+          //order page, cart page 등등에서 totalPrice 값이 필요하기 때문에 여기에서 계산한다.
+          (total, item) => total + item.productId.price * item.qty,
+          0
+        );
+      })
+      .addCase(updateQty.rejected,(state,action)=>{
+        state.loading=false;
+        state.error=action.payload;
+      })
+      .addCase(getCartQty.pending,(state,action)=>{
+        state.loading=true;
+      })
+      .addCase(getCartQty.fulfilled,(state,action)=>{
+        state.loading=true;
+        state.error="";
+        state.cartItemCount=action.payload;
+      })
+      .addCase(getCartQty.rejected,(state,action)=>{
+        state.loading=true;
+        state.error=action.payload;
+      })
   },
 });
 
