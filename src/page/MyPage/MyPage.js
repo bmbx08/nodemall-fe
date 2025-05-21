@@ -14,6 +14,10 @@ const MyPage = () => {
     dispatch(getOrder());
   }, [dispatch]);
 
+  useEffect(()=>{
+    console.log("my page orderlisttt", orderList)
+  },[orderList])
+
   if (orderList?.length === 0) {
     return (
       <Container className="no-order-box">

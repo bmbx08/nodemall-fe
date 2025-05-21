@@ -1,7 +1,7 @@
-import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import { getCartQty } from "../cart/cartSlice";
+import {createAsyncThunk, createSlice} from "@reduxjs/toolkit";
+import {getCartQty} from "../cart/cartSlice";
 import api from "../../utils/api";
-import { showToastMessage } from "../common/uiSlice";
+import {showToastMessage} from "../common/uiSlice";
 
 // Define initial state
 const initialState = {
@@ -16,13 +16,14 @@ const initialState = {
 // Async thunks
 export const createOrder = createAsyncThunk(
   "order/createOrder",
-  async (payload, { dispatch, rejectWithValue }) => {
-    try{
-      const response = await api.post("/order",payload);
-      if(response.status!==200) throw new Error(response.error);
-      return response.data.orderNum
-    }catch(error){
-      dispatch(showToastMessage({message:error.error,status:"error"}))
+  async (payload, {dispatch, rejectWithValue}) => {
+    try {
+      const response = await api.post("/order", payload);
+      if (response.status !== 200) throw new Error(response.error);
+      dispatch(getCartQty());
+      return response.data.orderNum;
+    } catch (error) {
+      dispatch(showToastMessage({message: error.error, status: "error"}));
       return rejectWithValue(error.error);
     }
   }
@@ -30,17 +31,26 @@ export const createOrder = createAsyncThunk(
 
 export const getOrder = createAsyncThunk(
   "order/getOrder",
-  async (_, { rejectWithValue, dispatch }) => {}
+  async (_, {rejectWithValue, dispatch}) => {
+    try {
+      const response = await api.get("/order");
+      if (response.status !== 200) throw new Error(response.error);
+      console.log("get order response",response.data.orderList)
+      return response.data.orderList;
+    } catch (error) {
+      return rejectWithValue(error.error);
+    }
+  }
 );
 
 export const getOrderList = createAsyncThunk(
   "order/getOrderList",
-  async (query, { rejectWithValue, dispatch }) => {}
+  async (query, {rejectWithValue, dispatch}) => {}
 );
 
 export const updateOrder = createAsyncThunk(
   "order/updateOrder",
-  async ({ id, status }, { dispatch, rejectWithValue }) => {}
+  async ({id, status}, {dispatch, rejectWithValue}) => {}
 );
 
 // Order slice
@@ -53,21 +63,33 @@ const orderSlice = createSlice({
     },
   },
   extraReducers: (builder) => {
-    builder.addCase(createOrder.pending,(state,action)=>{
-      state.loading=true;
-    })
-    .addCase(createOrder.fulfilled,(state,action)=>{
-      state.loading=false;
-      state.error="";
-      state.orderNum=action.payload;
-    })
-    .addCase(createOrder.rejected,(state,action)=>{
-      state.loading=false;
-      state.error=action.payload;
-
-    })
+    builder
+      .addCase(createOrder.pending, (state, action) => {
+        state.loading = true;
+      })
+      .addCase(createOrder.fulfilled, (state, action) => {
+        state.loading = false;
+        state.error = "";
+        state.orderNum = action.payload;
+      })
+      .addCase(createOrder.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+      .addCase(getOrder.pending, (state,action)=>{
+        state.loading = true;
+      })
+      .addCase(getOrder.fulfilled, (state,action)=>{
+        state.loading=false;
+        state.error="";
+        state.orderList = action.payload;
+      })
+      .addCase(getOrder.rejected, (state,action)=>{
+        state.loading=false;
+        state.error=action.payload;
+      })
   },
 });
 
-export const { setSelectedOrder } = orderSlice.actions;
+export const {setSelectedOrder} = orderSlice.actions;
 export default orderSlice.reducer;
