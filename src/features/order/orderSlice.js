@@ -38,6 +38,7 @@ export const getOrder = createAsyncThunk(
       console.log("get order response",response.data.orderList)
       return response.data.orderList;
     } catch (error) {
+      dispatch(showToastMessage({message: error.error, status: "error"}));
       return rejectWithValue(error.error);
     }
   }
@@ -52,6 +53,7 @@ export const getOrderList = createAsyncThunk(
       console.log("get orderlist response",response.data)
       return response.data;
     }catch(error){
+      dispatch(showToastMessage({message: error.error, status: "error"}));
       return rejectWithValue(error.error);
     }
 
