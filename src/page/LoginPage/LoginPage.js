@@ -28,6 +28,8 @@ const Login = () => {
 
   const handleGoogleLogin = async (googleData) => {
     //구글 로그인 하기
+    console.log("google data",googleData);
+    dispatch(loginWithGoogle(googleData.credential));
   };
 
   if (user) {
@@ -73,6 +75,14 @@ const Login = () => {
           <div className="text-align-center mt-2">
             <p>-외부 계정으로 로그인하기-</p>
             <div className="display-center">
+              {/* 
+              1. 구글 로그인 버튼 가져오기
+              2. Oauth로그인을 위해서 google api 사이트에 가입하고 클라이언트키, 시크릿키 받아오기
+              3. 로그인
+              4. 백엔드에서 로그인하기
+                a. 이미 로그인을 한 적이 있는 유저 => 로그인시키고 토큰값 주면됨
+                b. 처음 로그인 시도를 한 유저다 => 유저정보 먼저 새로 새성 => 토큰값
+              */}
               <GoogleOAuthProvider clientId={GOOGLE_CLIENT_ID}>
                 <GoogleLogin
                   onSuccess={handleGoogleLogin}
