@@ -28,7 +28,8 @@ export const loginWithGoogle = createAsyncThunk(
   async (token, { rejectWithValue }) => {
     try{
       const response = await api.post("/auth/google",{token})
-      if(response.status!==200) throw new Error(response.error);
+      // if(response.status!==200) throw new Error(response.error); //만약 response응답값이 200번대가 아니라면, axios api에서 자동으로 catch(error) 함수로 전달한다.
+      sessionStorage.setItem("token",response.data.token);
       return response.data.user;
     }catch(error){
       return rejectWithValue(error.error)
