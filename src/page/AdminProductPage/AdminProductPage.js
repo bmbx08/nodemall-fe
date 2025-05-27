@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from "react";
-import {Container, Button} from "react-bootstrap";
+import {Container, Button, Dropdown} from "react-bootstrap";
 import {useDispatch, useSelector} from "react-redux";
 import {useSearchParams, useNavigate} from "react-router-dom";
 import ReactPaginate from "react-paginate";
@@ -21,6 +21,7 @@ const AdminProductPage = () => {
   const [searchQuery, setSearchQuery] = useState({
     page: query.get("page") || 1,
     name: query.get("name") || "",
+    option: query.get("option") || "",
   }); //검색 조건들을 저장하는 객체
 
   const [mode, setMode] = useState("new");
@@ -36,6 +37,15 @@ const AdminProductPage = () => {
     "",
   ];
 
+  const [option, setOption] = useState("정확도순");
+  const optionList = [
+    "정확도순",
+    "가격높은순",
+    "가격낮은순",
+    "최신순",
+    "오래된순",
+  ];
+
   //상품리스트 가져오기 (url쿼리 맞춰서)
   useEffect(() => {
     dispatch(getProductList({...searchQuery}));
@@ -46,9 +56,12 @@ const AdminProductPage = () => {
     if (searchQuery.name === "") {
       delete searchQuery.name;
     }
-    console.log("search query", searchQuery);
+    if(searchQuery.option ==="") {
+      delete searchQuery.option;
+    }
+    // console.log("search query", searchQuery);
     const params = new URLSearchParams(searchQuery); //URLSearchParams가 객체 형태인 searchQuery를 query형태로 바꿔줌
-    const query = params.toString(); //하지만 string 형태로 변환해야지 사용가능
+    const query = params.toString(); //그리고 string 형태로 변환해야지 사용가능
     console.log("queryy", query);
     navigate("?" + query);
   }, [searchQuery]);
@@ -79,6 +92,12 @@ const AdminProductPage = () => {
     setSearchQuery({...searchQuery, page: selected + 1});
   };
 
+  const selectOption = (value) => {
+    setOption(value);
+    setSearchQuery({...searchQuery, page:1, option: value})
+    // navigate(`?option=${value}`);
+  };
+
   //searchbox에서 검색어를 읽어온다 =>  엔터를 치면 => searchQuery객체가 업데이트가 됨 {name: 스트레이트 팬츠}
   //=>searchQuery객체 안에 아이템 기준으로 url을 새로 생성해서 호출 &name=스트레이트+팬츠 => url쿼리 읽어오기 => url쿼리 기준으로 BE에 검색조건과함께 호출한다.
 
@@ -93,9 +112,48 @@ const AdminProductPage = () => {
             field="name"
           />
         </div>
-        <Button className="mt-2 mb-2" onClick={handleClickNewItem}>
-          Add New Item +
-        </Button>
+        <div>
+          <Button className="mt-2 mb-2" onClick={handleClickNewItem}>
+            Add New Item +
+          </Button>
+
+          <Dropdown
+            className="landing-drop-down mb-3"
+            title={option}
+            align="end"
+            onSelect={(value) => selectOption(value)}
+          >
+            <Dropdown.Toggle
+              className="landing-drop-down"
+              variant="outline-dark"
+              id="dropdown-basic"
+              align="end"
+            >
+              {/* {option === "" ? "정확도순" : option} */}
+              {option}
+            </Dropdown.Toggle>
+
+            <Dropdown.Menu className="landing-drop-down">
+              {/* {Object.keys(selectedProduct.stock).length > 0 &&
+                      Object.keys(selectedProduct.stock).map((item, index) =>
+                        selectedProduct.stock[item] > 0 ? (
+                          <Dropdown.Item eventKey={item} key={index}>
+                            {item.toUpperCase()}
+                          </Dropdown.Item>
+                        ) : (
+                          <Dropdown.Item eventKey={item} disabled={true} key={index}>
+                            {item.toUpperCase()}
+                          </Dropdown.Item>
+                        )
+                      )} */}
+              {optionList.map((option, index) => (
+                <Dropdown.Item eventKey={option} key={index}>
+                  {option}
+                </Dropdown.Item>
+              ))}
+            </Dropdown.Menu>
+          </Dropdown>
+        </div>
 
         <ProductTable
           header={tableHeader}

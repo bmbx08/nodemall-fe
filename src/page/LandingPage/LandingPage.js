@@ -1,9 +1,9 @@
-import React, { useEffect, useState } from "react";
+import React, {useEffect, useState} from "react";
 import ProductCard from "./components/ProductCard";
-import { Row, Col, Container } from "react-bootstrap";
-import { useNavigate, useSearchParams } from "react-router-dom";
-import { useDispatch, useSelector } from "react-redux";
-import { getProductList } from "../../features/product/productSlice";
+import {Row, Col, Container, Dropdown} from "react-bootstrap";
+import {useNavigate, useSearchParams} from "react-router-dom";
+import {useDispatch, useSelector} from "react-redux";
+import {getProductList} from "../../features/product/productSlice";
 import ReactPaginate from "react-paginate";
 
 const LandingPage = () => {
